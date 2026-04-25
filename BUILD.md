@@ -1,6 +1,6 @@
 # Build Instructions
 
-## Table of Contents
+### Table of Contents
 
 - [Windows](#windows)
 - [Linux](#linux)
