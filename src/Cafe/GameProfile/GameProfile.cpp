@@ -226,11 +226,9 @@ bool GameProfile::Load(uint64_t title_id)
 				m_graphics_api = (GraphicAPI)graphicsApi.value;
 
 			gameProfile_loadEnumOption(iniParser, "accurateShaderMul", m_accurateShaderMul);
-#if ENABLE_METAL
 			gameProfile_loadBooleanOption2(iniParser, "shaderFastMath", m_shaderFastMath);
 			gameProfile_loadEnumOption(iniParser, "metalBufferCacheMode2", m_metalBufferCacheMode);
 			gameProfile_loadEnumOption(iniParser, "positionInvariance2", m_positionInvariance);
-#endif
 
 			// legacy support
 			auto option_precompiledShaders = iniParser.FindOption("precompiledShaders");
@@ -311,11 +309,9 @@ void GameProfile::Save(uint64_t title_id)
 
 	fs->writeLine("[Graphics]");
 	WRITE_ENTRY(accurateShaderMul);
-#if ENABLE_METAL
 	WRITE_ENTRY(shaderFastMath);
 	WRITE_ENTRY_NUMBERED(metalBufferCacheMode, 2);
 	WRITE_ENTRY_NUMBERED(positionInvariance, 2);
-#endif
 	WRITE_OPTIONAL_ENTRY(precompiledShaders);
 	WRITE_OPTIONAL_ENTRY(graphics_api);
 	fs->writeLine("");
@@ -346,11 +342,9 @@ void GameProfile::ResetOptional()
 
 	// graphic settings
 	m_accurateShaderMul = AccurateShaderMulOption::True;
-#if ENABLE_METAL
 	m_shaderFastMath = true;
 	m_metalBufferCacheMode = MetalBufferCacheMode::Auto;
 	m_positionInvariance = PositionInvariance::Auto;
-#endif
 	// cpu settings
 	m_threadQuantum = kThreadQuantumDefault;
 	m_cpuMode.reset(); // CPUModeOption::kSingleCoreRecompiler;
@@ -371,11 +365,9 @@ void GameProfile::Reset()
 
 	// graphic settings
 	m_accurateShaderMul = AccurateShaderMulOption::True;
-#if ENABLE_METAL
 	m_shaderFastMath = true;
 	m_metalBufferCacheMode = MetalBufferCacheMode::Auto;
 	m_positionInvariance = PositionInvariance::Auto;
-#endif
 	m_precompiledShaders = PrecompiledShaderOption::Auto;
 	// cpu settings
 	m_threadQuantum = kThreadQuantumDefault;

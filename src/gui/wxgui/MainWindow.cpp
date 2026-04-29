@@ -13,9 +13,7 @@
 #include "AudioDebuggerWindow.h"
 #include "wxgui/canvas/OpenGLCanvas.h"
 #include "wxgui/canvas/VulkanCanvas.h"
-#if ENABLE_METAL
 #include "wxgui/canvas/MetalCanvas.h"
-#endif
 #include "Cafe/OS/libs/nfc/nfc.h"
 #include "Cafe/OS/libs/swkbd/swkbd.h"
 #include "wxgui/debugger/DebuggerWindow2.h"
@@ -1037,13 +1035,14 @@ void MainWindow::OnDebugSetting(wxCommandEvent& event)
 		if(!GetConfig().vk_accurate_barriers)
 			wxMessageBox(_("Warning: Disabling the accurate barriers option will lead to flickering graphics but may improve performance. It is highly recommended to leave it turned on."), _("Accurate barriers are off"), wxOK);
 	}
-#if ENABLE_METAL
 	else if (event.GetId() == MAINFRAME_MENU_ID_DEBUG_GPU_CAPTURE)
-	{
-		cemu_assert_debug(g_renderer->GetType() == RendererAPI::Metal);
-		static_cast<MetalRenderer*>(g_renderer.get())->CaptureFrame();
-	}
+    {
+        cemu_assert_debug(g_renderer->GetType() == RendererAPI::Metal);
+
+#if ENABLE_METAL
+        static_cast<MetalRenderer*>(g_renderer.get())->CaptureFrame();
 #endif
+    }
 	else if (event.GetId() == MAINFRAME_MENU_ID_DEBUG_AUDIO_AUX_ONLY)
 		ActiveSettings::EnableAudioOnlyAux(event.IsChecked());
 	else if (event.GetId() == MAINFRAME_MENU_ID_DEBUG_DUMP_RAM)
@@ -2235,7 +2234,7 @@ void MainWindow::RecreateMenu()
 
 	// options submenu
 	wxMenu* optionsMenu = new wxMenu();
-	m_fullscreenMenuItem = optionsMenu->AppendCheckItem(MAINFRAME_MENU_ID_OPTIONS_FULLSCREEN, _("&Fullscreen"));
+	m_fullscreenMenuItem = optionsMenu->AppendCheckItem(MAINFRAME_MENU_ID_OPTIONS_FULLSCREEN, _("&Fullscreen"), wxEmptyString);
 	m_fullscreenMenuItem->Check(FullscreenEnabled());
 
 	optionsMenu->Append(MAINFRAME_MENU_ID_OPTIONS_GRAPHIC_PACKS2, _("&Graphic packs"));
@@ -2337,7 +2336,7 @@ void MainWindow::RecreateMenu()
 	debugMenu->AppendSubMenu(debugDumpMenu, _("&Dump"));
 	debugMenu->AppendSeparator();
 
-	auto upsidedownItem = debugMenu->AppendCheckItem(MAINFRAME_MENU_ID_DEBUG_RENDER_UPSIDE_DOWN, _("&Render upside-down"));
+	auto upsidedownItem = debugMenu->AppendCheckItem(MAINFRAME_MENU_ID_DEBUG_RENDER_UPSIDE_DOWN, _("&Render upside-down"), wxEmptyString);
 	upsidedownItem->Check(ActiveSettings::RenderUpsideDownEnabled());
 	if(LaunchSettings::RenderUpsideDownEnabled().has_value())
 		upsidedownItem->Enable(false);
@@ -2345,10 +2344,8 @@ void MainWindow::RecreateMenu()
 	auto accurateBarriers = debugMenu->AppendCheckItem(MAINFRAME_MENU_ID_DEBUG_VK_ACCURATE_BARRIERS, _("&Accurate barriers (Vulkan)"));
 	accurateBarriers->Check(GetConfig().vk_accurate_barriers);
 
-#if ENABLE_METAL
-	auto gpuCapture = debugMenu->Append(MAINFRAME_MENU_ID_DEBUG_GPU_CAPTURE, _("&GPU capture (Metal)"));
-	gpuCapture->Enable(m_game_launched && g_renderer->GetType() == RendererAPI::Metal);
-#endif
+    auto gpuCapture = debugMenu->Append(MAINFRAME_MENU_ID_DEBUG_GPU_CAPTURE, _("&GPU capture (Metal)"));
+    gpuCapture->Enable(m_game_launched && g_renderer->GetType() == RendererAPI::Metal);
 
 	debugMenu->AppendSeparator();
 

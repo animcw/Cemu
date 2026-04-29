@@ -233,7 +233,6 @@ private:
 	bool m_activated = false; // set if the graphic pack is currently used by the running game
 	std::vector<uint64_t> m_title_ids;
 	bool m_patchedFilesLoaded = false; // set to true once patched files are loaded
-	bool m_universal = false; // set if this pack applies to every title id
 
 	sint32 m_vsync_frequency = -1;
 	sint32 m_fs_priority = 100;
@@ -252,6 +251,12 @@ private:
 	std::vector<TextureRule> m_texture_rules;
 	std::string m_output_shader_source, m_upscaling_shader_source, m_downscaling_shader_source;
 	std::unique_ptr<RendererOutputShader> m_output_shader, m_upscaling_shader, m_downscaling_shader, m_output_shader_ud, m_upscaling_shader_ud, m_downscaling_shader_ud;
+
+	template<typename T>
+	bool ParseRule(const ExpressionParser& parser, IniParser& iniParser, const char* option_name, T* value_out) const;
+
+	template<typename T>
+	std::vector<T> ParseList(const ExpressionParser& parser, IniParser& iniParser, const char* option_name) const;
 
 	std::unordered_map<std::string, PresetVar> ParsePresetVars(IniParser& rules) const;
 
@@ -301,3 +306,37 @@ public:
 };
 
 using GraphicPackPtr = std::shared_ptr<GraphicPack2>;
+
+template <typename T>
+bool GraphicPack2::ParseRule(const ExpressionParser& parser, IniParser& iniParser, const char* option_name, T* value_out) const
+{
+	auto option_value = iniParser.FindOption(option_name);
+	if (option_value)
+	{
+		*value_out = parser.Evaluate<T>(*option_value);
+		return true;
+	}
+
+	return false;
+}
+
+template <typename T>
+std::vector<T> GraphicPack2::ParseList(const ExpressionParser& parser, IniParser& iniParser, const char* option_name) const
+{
+	std::vector<T> result;
+
+	auto option_text = iniParser.FindOption(option_name);
+	if (!option_text)
+		return result;
+
+	for(auto& token : Tokenize(*option_text, ','))
+	{
+		try
+		{
+			result.emplace_back(parser.Evaluate<T>(token));
+		}
+		catch (const std::invalid_argument&) {}
+	}
+
+	return result;
+}
