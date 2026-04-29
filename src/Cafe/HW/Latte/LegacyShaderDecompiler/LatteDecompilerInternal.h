@@ -115,13 +115,8 @@ struct LatteDecompilerCFInstruction
 		cemu_assert_debug(!(instructionsALU.size() != 0 && instructionsTEX.size() != 0)); // make sure we haven't accidentally added the wrong instruction type
 	}
 
-#if BOOST_OS_WINDOWS
-	LatteDecompilerCFInstruction(LatteDecompilerCFInstruction& mE) = default;
-	LatteDecompilerCFInstruction(LatteDecompilerCFInstruction&& mE) = default;
-#else
 	LatteDecompilerCFInstruction(const LatteDecompilerCFInstruction& mE) = default;
 	LatteDecompilerCFInstruction(LatteDecompilerCFInstruction&& mE) = default;
-#endif
 
 	LatteDecompilerCFInstruction& operator=(LatteDecompilerCFInstruction&& mE) = default;
 };
@@ -263,6 +258,7 @@ struct LatteDecompilerShaderContext
 	sint32 currentBufferBindingPointMTL{};
 	sint32 currentTextureBindingPointMTL{};
 	struct ALUClauseTemporariesState* aluPVPSState{nullptr};
+	
 	// misc
 	std::vector<LatteDecompilerSubroutineInfo> list_subroutines;
 };

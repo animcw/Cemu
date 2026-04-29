@@ -31,7 +31,7 @@ LoggingWindow::LoggingWindow(wxFrame* parent)
 		sizer->Add( filter_row, 0, wxEXPAND, 5 );
 	}
 
-	m_log_list = new wxLogCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxScrolledWindowStyle|wxVSCROLL, true);//( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_HSCROLL );
+	m_log_list = new wxLogCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxScrolledWindowStyle, true);
 	sizer->Add( m_log_list, 1, wxALL | wxEXPAND, 5 );
 
 	this->SetSizer( sizer );

@@ -27,7 +27,7 @@ GameProfileWindow::GameProfileWindow(wxWindow* parent, uint64_t title_id)
 
 	auto* main_sizer = new wxBoxSizer(wxVERTICAL);
 
-	auto* m_notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0);
+	auto* m_notebook = new wxNotebook(this, wxID_ANY);
 	// general
 	{
 		auto* panel = new wxPanel(m_notebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
@@ -248,7 +248,7 @@ void GameProfileWindow::OnControllerProfileDropdown(wxCommandEvent& event)
 	auto profiles = InputManager::get_profiles();
 	for (const auto& profile : profiles)
 	{
-		cb->Append(to_wxString(profile));
+		cb->Append(wxString::FromUTF8(profile));
 	}
 
 	cb->SetStringSelection(selected_value);
@@ -309,7 +309,7 @@ void GameProfileWindow::ApplyProfile()
 		cb->Clear();
 		for (const auto& profile : profiles)
 		{
-			cb->Append(to_wxString(profile));
+			cb->Append(wxString::FromUTF8(profile));
 		}
 	}
 

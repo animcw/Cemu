@@ -1,7 +1,5 @@
 #include "Cafe/OS/libs/nn_common.h"
-#include "Cafe/OS/libs/coreinit/coreinit_Time.h"
 #include "util/helpers/helpers.h"
-#include "Cafe/Filesystem/fsc.h"
 
 #include "Cafe/IOSU/iosu_types_common.h"
 #include "Cafe/IOSU/nn/iosu_nn_service.h"
@@ -9,6 +7,7 @@
 #include "Cafe/IOSU/legacy/iosu_act.h"
 #include "Cafe/CafeSystem.h"
 #include "config/ActiveSettings.h"
+#include "Cafe/Account/Account.h"
 
 #include "boss_service.h"
 #include "boss_common.h"
@@ -902,6 +901,8 @@ namespace iosu::boss
 				// handling automatic scheduling and task state transitions is quite complex
 				// for now we only run the task once
 				std::shared_ptr<RegisteredTask> registeredTask = GetRegisteredTask2(persistentId, taskId);
+				if(!registeredTask)
+					return;
 				TaskState state = registeredTask->GetState();
 				if (state == TaskState::Stopped || state == TaskState::Initial)
 				{

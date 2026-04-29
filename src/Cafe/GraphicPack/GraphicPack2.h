@@ -6,10 +6,10 @@
 #include "util/helpers/Serializer.h"
 #include "Cafe/OS/RPL/rpl.h"
 #include "Cemu/PPCAssembler/ppcAssembler.h"
-#include <variant>
-#include "Cafe/HW/Latte/Renderer/Renderer.h"
 #include "GraphicPack2Patches.h"
-#include "util/IniParser/IniParser.h"
+
+enum class RendererAPI;
+enum class GfxVendor;
 
 class GraphicPack2
 {
@@ -26,6 +26,7 @@ public:
 		GFXPACK_VERSION_5 = 5,
 		GFXPACK_VERSION_6 = 6, // added memory extensions
 		GFXPACK_VERSION_7 = 7, // added fine-grained origin control in patch format (no more forced 4 byte alignment), .string directive (an alias to .byte) and support for more than one constant per data directive
+		GFXPACK_VERSION_8 = 8, // (Cemu 2.7) added: titleId and rpx hash wildcards (*), added .callback entry <symbol> to call a function when the main entrypoint is reached
 	};
 
 	struct TextureRule
@@ -98,7 +99,7 @@ public:
 	};
 	using PresetPtr = std::shared_ptr<Preset>;
 
-	GraphicPack2(fs::path rulesPath, IniParser& rules);
+	GraphicPack2(fs::path rulesPath, class IniParser& rules);
 
 	bool IsEnabled() const { return m_enabled; }
 	bool IsActivated() const { return m_activated; }
@@ -109,6 +110,7 @@ public:
 	bool Reload();
 
 	bool HasName() const { return !m_name.empty();  }
+	bool IsUniversal() const { return m_universal; }
 
 	const std::string& GetName() const { return m_name.empty() ? m_virtualPath : m_name; }
 	const std::string& GetVirtualPath() const { return m_virtualPath; } // returns the path in the gfx tree hierarchy
@@ -122,6 +124,8 @@ public:
 	const std::vector<uint64_t>& GetTitleIds() const { return m_title_ids; }
 	bool HasCustomVSyncFrequency() const { return m_vsync_frequency >= 1; }
 	sint32 GetCustomVSyncFrequency() const { return m_vsync_frequency; }
+	
+	const std::vector<std::pair<MPTR, GPCallbackType>>& GetCallbacks() const { return m_callbacks; }
 
 	// texture rules
 	const std::vector<TextureRule>& GetTextureRules() const { return m_texture_rules; }
@@ -256,7 +260,7 @@ private:
 
 	std::unordered_map<std::string, PresetVar> ParsePresetVars(IniParser& rules) const;
 
-	std::vector<uint64> ParseTitleIds(IniParser& rules, const char* option_name) const;
+	std::vector<uint64> ParseTitleIds(IniParser& rules, const char* option_name);
 
 	CustomShader LoadShader(const fs::path& path, uint64 shader_base_hash, uint64 shader_aux_hash, GP_SHADER_TYPE shader_type, bool isMetalShader) const;
 	void ApplyShaderPresets(std::string& shader_source) const;
@@ -282,6 +286,8 @@ private:
 	void LogPatchesSyntaxError(sint32 lineNumber, std::string_view errorMsg);
 
 	std::vector<PatchGroup*> list_patchGroups;
+	
+	std::vector<std::pair<MPTR, GPCallbackType>> m_callbacks;
 
 	static std::recursive_mutex mtx_patches;
 	static std::vector<const RPLModule*> list_modules;
